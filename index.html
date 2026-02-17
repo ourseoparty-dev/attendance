@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>time balance · worked minus target</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #edf2fc 0%, #dee7f5 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 42px;
+            box-shadow: 0 25px 45px rgba(0, 15, 40, 0.2), 0 10px 25px rgba(0, 5, 25, 0.15);
+            width: 100%;
+            max-width: 680px;
+            padding: 26px 32px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        h2 {
+            margin: 0 0 4px 0;
+            font-weight: 620;
+            font-size: 2.1rem;
+            letter-spacing: -0.02em;
+            color: #0b1a38;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        h2 .badge {
+            background: #1e3b5c;
+            color: white;
+            font-size: 0.95rem;
+            padding: 6px 20px;
+            border-radius: 60px;
+            font-weight: 470;
+        }
+
+        .sub {
+            color: #31486b;
+            font-weight: 400;
+            margin: 2px 0 24px 0;
+            border-left: 4px solid #527ac2;
+            padding-left: 16px;
+            background: rgba(70, 120, 210, 0.05);
+            border-radius: 0 20px 20px 0;
+        }
+
+        .row-duo {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            flex: 1 1 200px;
+            margin-bottom: 0;
+        }
+
+        label {
+            font-weight: 560;
+            display: block;
+            margin-bottom: 5px;
+            color: #132c4b;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+        }
+
+        .field {
+            background: white;
+            border-radius: 34px;
+            border: 1.5px solid #d0dbf2;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            padding: 0 18px;
+            box-shadow: 0 4px 10px rgba(0, 10, 30, 0.02);
+            height: 64px;
+        }
+
+        .field:focus-within {
+            border-color: #3f6ad8;
+            box-shadow: 0 8px 18px rgba(57, 94, 196, 0.15);
+        }
+
+        .field input {
+            width: 100%;
+            border: none;
+            padding: 12px 0;
+            font-size: 1.2rem;
+            font-weight: 500;
+            background: transparent;
+            outline: none;
+            color: #0a1a34;
+        }
+
+        .field input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .field input::-webkit-outer-spin-button,
+        .field input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .field .unit {
+            color: #5b6f9a;
+            font-weight: 470;
+            padding-left: 12px;
+            border-left: 1px dashed #b2c2e0;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .field-hint {
+            font-size: 0.8rem;
+            color: #4d608b;
+            margin-top: 6px;
+            margin-left: 16px;
+        }
+
+        .button-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 26px 0 24px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #1e3358;
+            border: none;
+            color: white;
+            font-weight: 560;
+            font-size: 1.2rem;
+            padding: 16px 32px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 10px 20px -8px #1e3358b0;
+            border: 1px solid #ffffff60;
+            letter-spacing: 0.3px;
+            flex: 1 1 auto;
+        }
+
+        .btn:hover {
+            background: #284b82;
+            transform: scale(1.01);
+        }
+
+        .hint {
+            color: #4a608b;
+            background: #eef3fe;
+            border-radius: 40px;
+            padding: 8px 22px;
+            font-size: 0.95rem;
+            font-weight: 460;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .hint kbd {
+            background: #2b3f66;
+            color: white;
+            border-radius: 8px;
+            padding: 3px 9px;
+            font-size: 0.8rem;
+            font-family: monospace;
+        }
+
+        .result-panel {
+            background: #0f1d32;
+            border-radius: 30px;
+            padding: 18px 24px;
+            margin-top: 12px;
+            border: 1px solid #6f88bb;
+            box-shadow: inset 0 2px 6px #00000030, 0 12px 22px #0a1b34b0;
+        }
+
+        .result-label {
+            color: #b3cbff;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1.4px;
+            font-weight: 400;
+        }
+
+        .balance-output {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: white;
+            word-break: break-word;
+        }
+
+        .balance-output small {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: #b8d1ff;
+            margin-left: 6px;
+        }
+
+        .example {
+            color: #b0c6f0;
+            margin-top: 12px;
+            font-size: 0.9rem;
+            border-top: 1px dashed #485e8e;
+            padding-top: 12px;
+        }
+
+        .example span {
+            background: #1c3053;
+            padding: 5px 16px;
+            border-radius: 30px;
+            display: inline-block;
+            margin: 2px 4px 0 0;
+        }
+
+        .error-msg {
+            background: #ffeae5;
+            color: #bc3b3b;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            border: 1px solid #ffaeae;
+            margin-bottom: 14px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 550px) {
+            .card {
+                padding: 22px 18px;
+            }
+
+            .field {
+                height: 58px;
+            }
+
+            .balance-output {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h2>
+            ⚖️ time balance
+            <span class="badge">worked − target</span>
+        </h2>
+        <div class="sub">total worked time – (total worked days × daily hours)</div>
+
+        <!-- first row: total worked days & daily hours (updated labels) -->
+        <div class="row-duo">
+            <div class="input-group">
+                <label>📆 total worked days</label>
+                <div class="field">
+                    <input type="number" id="totalWorkedDays" step="any" min="0" value="17" placeholder="days">
+                    <span class="unit">days</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>⏱️ daily hours</label>
+                <div class="field">
+                    <input type="number" id="dailyHours" step="any" min="0" value="7" placeholder="hours">
+                    <span class="unit">h/day</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SINGLE worked field: total worked time (hours.minutes) -->
+        <div class="input-group" style="margin-bottom: 6px;">
+            <label>⌛ total worked time (hrs & min) · use <span style="font-weight:400;">hours.minutes</span></label>
+            <div class="field">
+                <input type="number" id="totalWorkedTime" step="any" value="114.29" placeholder="e.g. 114.29">
+                <span class="unit">hrs.min</span>
+            </div>
+            <div class="field-hint">ⓘ 114.29 = 114 hours + 29 minutes</div>
+        </div>
+
+        <!-- button + enter hint -->
+        <div class="button-section">
+            <button class="btn" id="calculateBtn"> = compute balance</button>
+            <div class="hint">
+                <kbd>↵</kbd> Enter
+            </div>
+        </div>
+
+        <!-- result display -->
+        <div class="result-panel">
+            <div class="result-label">⚖️ balance (worked − target)</div>
+            <div class="balance-output" id="balanceDisplay">(− 4 hours 31 minutes)</div>
+            <div class="example" id="exampleNote">
+                <span>📐 114h29m − (17×7) = −4.517h</span>
+            </div>
+        </div>
+
+        <!-- error container -->
+        <div id="errorContainer" class="error-msg" style="display: none;"></div>
+    </div>
+
+    <script>
+        (function () {
+            // elements with updated IDs
+            const workedDaysInput = document.getElementById('totalWorkedDays');
+            const dailyInput = document.getElementById('dailyHours');
+            const totalWorkedTimeInput = document.getElementById('totalWorkedTime');  // single compound field
+            const calcBtn = document.getElementById('calculateBtn');
+            const balanceDisplay = document.getElementById('balanceDisplay');
+            const errorContainer = document.getElementById('errorContainer');
+            const exampleNote = document.getElementById('exampleNote');
+
+            function setError(message) {
+                if (message) {
+                    errorContainer.style.display = 'block';
+                    errorContainer.innerText = message;
+                    balanceDisplay.style.opacity = '0.65';
+                } else {
+                    errorContainer.style.display = 'none';
+                    errorContainer.innerText = '';
+                    balanceDisplay.style.opacity = '1';
+                }
+            }
+
+            // Convert "hours.minutes" format to decimal hours (same as before)
+            function parseHoursMinutesCompound(value) {
+                if (typeof value !== 'string' && typeof value !== 'number') return NaN;
+                const str = String(value).trim();
+                if (str === '') return NaN;
+
+                const parts = str.split('.');
+                let hoursPart = parts[0];
+                let minutesPart = parts[1] || '0';
+
+                hoursPart = hoursPart.trim();
+                minutesPart = minutesPart.trim();
+
+                const hours = parseFloat(hoursPart);
+                let minutesFloat = parseFloat(minutesPart);
+                if (isNaN(minutesFloat)) minutesFloat = 0;
+
+                if (isNaN(hours) || hours < 0) return NaN;
+                if (minutesFloat < 0) return NaN;
+
+                // minutes to hours
+                return hours + (minutesFloat / 60);
+            }
+
+            // Main calculation: total worked time - (total worked days * daily hours)
+            function updateBalance() {
+                setError('');
+
+                // parse inputs
+                const workedDays = parseFloat(workedDaysInput.value);
+                const daily = parseFloat(dailyInput.value);
+                const rawWorkedTime = totalWorkedTimeInput.value;
+                const workedDecimal = parseHoursMinutesCompound(rawWorkedTime);
+
+                // validations
+                if (isNaN(workedDays)) {
+                    setError('✗ total worked days must be a number');
+                    return;
+                }
+                if (isNaN(daily)) {
+                    setError('✗ daily hours must be a number');
+                    return;
+                }
+                if (isNaN(workedDecimal)) {
+                    setError('✗ total worked time must be in format hours.minutes (e.g. 114.29)');
+                    return;
+                }
+
+                if (workedDays < 0) {
+                    setError('✗ total worked days cannot be negative');
+                    return;
+                }
+                if (daily < 0) {
+                    setError('✗ daily hours cannot be negative');
+                    return;
+                }
+                if (workedDecimal < 0) {
+                    setError('✗ total worked time cannot be negative');
+                    return;
+                }
+
+                // target = workedDays * daily
+                const targetTotal = workedDays * daily;
+                // balance = worked - target   (new logic)
+                const balanceHours = workedDecimal - targetTotal;
+
+                // format sign and minutes
+                const sign = balanceHours >= 0 ? '+' : '−';
+                const absBalance = Math.abs(balanceHours);
+
+                const totalMinutes = Math.round(absBalance * 60);
+                const finalHours = Math.floor(totalMinutes / 60);
+                const finalMinutes = totalMinutes % 60;
+
+                const displayHours = `${finalHours} hours`;
+                const displayMinutes = `${finalMinutes} minutes`;
+
+                if (balanceHours === 0 || Math.abs(balanceHours) < 1e-9) {
+                    balanceDisplay.innerText = `(+ 0 hours 0 minutes)`;
+                } else {
+                    balanceDisplay.innerText = `(${sign} ${displayHours} ${displayMinutes})`;
+                }
+
+                // show breakdown in example line
+                const workedHours = Math.floor(workedDecimal);
+                const workedMinutesFloat = (workedDecimal - workedHours) * 60;
+                const workedMinutesApprox = Math.round(workedMinutesFloat);
+
+                exampleNote.innerHTML = `<span>📐 ${workedHours}h ${workedMinutesApprox}m − (${workedDays}×${daily}) = ${balanceHours > 0 ? '+' : ''}${balanceHours.toFixed(3)}h</span>`;
+            }
+
+            // event listeners
+            calcBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                updateBalance();
+            });
+
+            const inputs = [workedDaysInput, dailyInput, totalWorkedTimeInput];
+            inputs.forEach(input => {
+                input.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        updateBalance();
+                    }
+                });
+            });
+
+            // initial calculation on load
+            window.addEventListener('load', function () {
+                updateBalance();  // shows (− 4 hours 31 minutes) for 114.29 - 119 = -4.517
+            });
+        })();
+    </script>
+</body>
+
+</html>
